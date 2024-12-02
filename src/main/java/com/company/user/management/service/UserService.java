@@ -1,23 +1,23 @@
 package com.company.user.management.service;
 
 
+import com.company.user.management.exception.DataNotFoundException;
 import com.company.user.management.model.entity.User;
 import com.company.user.management.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.company.user.management.security.JwtUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public User registerUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -25,7 +25,16 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElse(null);
+    public User findByUsername(String username) throws DataNotFoundException {
+        return userRepository.findByUsername(username).orElseThrow(DataNotFoundException::new);
+    }
+
+    public ResponseEntity<String> login(User user) throws DataNotFoundException {
+        User foundUser = findByUsername(user.getUsername());
+        if (foundUser != null && new BCryptPasswordEncoder().matches(user.getPassword(), foundUser.getPassword())) {
+            String token = jwtUtil.generateToken(foundUser.getUsername());
+            return ResponseEntity.ok(token);
+        }
+        return ResponseEntity.status(401).body("Invalid credentials");
     }
 }

@@ -1,13 +1,16 @@
 package com.company.user.management.controller;
 
 
-import com.company.user.management.security.JwtUtil;
+import com.company.user.management.exception.DataNotFoundException;
 import com.company.user.management.model.entity.User;
+import com.company.user.management.security.JwtUtil;
 import com.company.user.management.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -26,12 +29,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
-        User foundUser = userService.findByUsername(user.getUsername());
-        if (foundUser != null && new BCryptPasswordEncoder().matches(user.getPassword(), foundUser.getPassword())) {
-            String token = jwtUtil.generateToken(foundUser.getUsername());
-            return ResponseEntity.ok(token);
-        }
-        return ResponseEntity.status(401).body("Invalid credentials");
+    public ResponseEntity<?> login(@RequestBody User user) throws DataNotFoundException {
+       return userService.login(user);
+
     }
 }
