@@ -3,6 +3,7 @@ package com.company.user.management.controller;
 
 import com.company.user.management.exception.DataNotFoundException;
 import com.company.user.management.model.entity.User;
+import com.company.user.management.model.request.UserRegisterRequest;
 import com.company.user.management.security.JwtUtil;
 import com.company.user.management.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody UserRegisterRequest user) {
         User registeredUser = userService.registerUser(user);
         return ResponseEntity.ok(registeredUser);
     }

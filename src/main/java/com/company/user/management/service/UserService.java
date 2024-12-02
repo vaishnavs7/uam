@@ -3,6 +3,7 @@ package com.company.user.management.service;
 
 import com.company.user.management.exception.DataNotFoundException;
 import com.company.user.management.model.entity.User;
+import com.company.user.management.model.request.UserRegisterRequest;
 import com.company.user.management.repository.UserRepository;
 import com.company.user.management.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,9 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
 
-    public User registerUser(User user) {
+    public User registerUser(UserRegisterRequest ur) {
+        User user = new User();
+        user.set
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("USER");
         return userRepository.save(user);
